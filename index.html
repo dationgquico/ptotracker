@@ -5,20 +5,28 @@
     <title>Optimo PH // Agency Operations</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-dark: #09090b; --bg-card: #18181b; --text-main: #ffffff; --status-present: #22c55e; --status-leave: #ef4444; --status-holiday: #f59e0b; }
+        :root { --bg-dark: #09090b; --bg-card: #18181b; --text-main: #ffffff; --text-muted: #a1a1aa; --status-present: #22c55e; --status-leave: #ef4444; --status-holiday: #f59e0b; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); color: var(--text-main); padding: 40px 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
+        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
         .card { background: var(--bg-card); border-radius: 24px; padding: 30px; border: 1px solid #27272a; }
         .member { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid #27272a; }
         .avatar { width: 45px; height: 45px; border-radius: 50%; background: #3f3f46; display: flex; align-items: center; justify-content: center; }
         .badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .timeline-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #27272a; }
     </style>
 </head>
 <body>
 <div class="container">
+    <!-- LEFT SIDE: Timeline View -->
+    <div class="card">
+        <h2>Out of Office Timeline</h2>
+        <div id="timelineContainer"></div>
+    </div>
+
+    <!-- RIGHT SIDE: Daily Status Map -->
     <div class="card">
         <h2>Daily Status Map</h2>
-        <input type="date" id="datePicker" onchange="renderStatusMap()" style="background:#27272a; color:white; border:none; padding:10px; border-radius:8px; margin-bottom:20px;">
+        <input type="date" id="datePicker" onchange="renderStatusMap()" style="background:#27272a; color:white; border:none; padding:10px; border-radius:8px; margin-bottom:20px; width:100%;">
         <div id="statusMap"></div>
     </div>
 </div>
@@ -29,37 +37,39 @@
     let ptoLogs = [];
 
     async function fetchData() {
-        try {
-            const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getData'}) });
-            const data = await res.json();
-            ptoLogs = data.logs || [];
-            renderStatusMap();
-        } catch(e) { console.error("Sync failed", e); }
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getData'}) });
+        const data = await res.json();
+        ptoLogs = data.logs || [];
+        renderTimeline();
+        renderStatusMap();
     }
 
-    function getStatus(name, dateStr) {
-        const d = new Date(dateStr);
-        // Holiday Block: Dec 23 to Jan 5
-        const isHoliday = (d.getMonth() === 11 && d.getDate() >= 23) || (d.getMonth() === 0 && d.getDate() <= 5);
-        if(isHoliday) return { text: 'Holiday', color: 'var(--status-holiday)' };
-        
-        const onLeave = ptoLogs.find(log => log.name === name && log.date === d.toDateString());
-        return onLeave ? { text: 'Absent', color: 'var(--status-leave)' } : { text: 'Present', color: 'var(--status-present)' };
+    function renderTimeline() {
+        const container = document.getElementById('timelineContainer');
+        container.innerHTML = ptoLogs.map(log => `
+            <div class="timeline-item">
+                <span style="font-weight:600;">${log.name}</span>
+                <span style="color:var(--text-muted);">${log.date}</span>
+            </div>
+        `).join('');
     }
 
     function renderStatusMap() {
         const date = document.getElementById('datePicker').value || new Date().toISOString().split('T')[0];
         const map = document.getElementById('statusMap');
-        map.innerHTML = '';
-        teamData.forEach(name => {
-            const status = getStatus(name, date);
-            map.innerHTML += `
+        map.innerHTML = teamData.map(name => {
+            const d = new Date(date);
+            const isHoliday = (d.getMonth() === 11 && d.getDate() >= 23) || (d.getMonth() === 0 && d.getDate() <= 5);
+            const status = isHoliday ? {text:'Holiday', color:'var(--status-holiday)'} : 
+                           (ptoLogs.find(l => l.name === name && l.date === d.toDateString()) ? {text:'Absent', color:'var(--status-leave)'} : {text:'Present', color:'var(--status-present)'});
+            
+            return `
                 <div class="member">
                     <div class="avatar">👤</div>
                     <div style="flex-grow:1; font-weight:600;">${name}</div>
                     <span class="badge" style="background:${status.color}33; color:${status.color}">${status.text}</span>
                 </div>`;
-        });
+        }).join('');
     }
 
     document.getElementById('datePicker').valueAsDate = new Date();
