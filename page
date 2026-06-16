@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimo PH Team - PTO Tracker</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        /* Dashboard Grid */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .member-card {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .member-name {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #64748b;
+        }
+
+        .stat-value {
+            font-weight: 600;
+        }
+
+        /* Form and Logs Section */
+        .management-section {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .management-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            width: auto;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Optimo PH Team PTO Tracker</h1>
+        <p>Manage and log paid time off allowances</p>
+    </header>
+
+    <div class="team-grid" id="teamGrid">
+        </div>
+
+    <div class="management-section">
+        <div class="card">
+            <h2>Log New PTO</h2>
+            <form id="ptoForm">
+                <div class="form-group">
+                    <label for="memberSelect">Team Member</label>
+                    <select id="memberSelect" required>
+                        <option value="Alex">Alex</option>
+                        <option value="Darla">Darla</option>
+                        <option value="AJ">AJ</option>
+                        <option value="Jess">Jess</option>
+                        <option value="Chen">Chen</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="ptoDate">Date</label>
+                    <input type="date" id="ptoDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="ptoDays">Days (e.g., 1 or 0.5)</label>
+                    <input type="number" id="ptoDays" min="0.5" step="0.5" value="1" required>
+                </div>
+                <button type="submit">Log Request</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Recent PTO History</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Date</th>
+                            <th>Days Booked</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Configurable base total allowance per year
+    const ANNUAL_ALLOWANCE = 15;
+
+    // Initial team data structure
+    const initialTeam = {
+        Alex: { total: ANNUAL_ALLOWANCE, used: 0 },
+        Darla: { total: ANNUAL_ALLOWANCE, used: 0 },
+        AJ: { total: ANNUAL_ALLOWANCE, used: 0 },
+        Jess: { total: ANNUAL_ALLOWANCE, used: 0 },
+        Chen: { total: ANNUAL_ALLOWANCE, used: 0 }
+    };
+
+    // Load from LocalStorage or fallback to defaults
+    let teamData = JSON.parse(localStorage.getItem('optimo_teamData')) || initialTeam;
+    let ptoLogs = JSON.parse(localStorage.getItem('optimo_ptoLogs')) || [];
+
+    // Render Dashboard Card UI
+    function renderDashboard() {
+        const grid = document.getElementById('teamGrid');
+        grid.innerHTML = '';
+
+        for (const [name, stats] of Object.entries(teamData)) {
+            const remaining = stats.total - stats.used;
+            const card = document.createElement('div');
+            card.className = 'member-card';
+            card.innerHTML = `
+                <div class="member-name">${name}</div>
+                <div class="stat-row">
+                    <span class="stat-label">Total Allocated:</span>
+                    <span class="stat-value">${stats.total} days</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Used:</span>
+                    <span class="stat-value" style="color: #e11d48;">${stats.used} days</span>
+                </div>
+                <div class="stat-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-color);">
+                    <span class="stat-label" style="font-weight: bold;">Remaining:</span>
+                    <span class="stat-value" style="color: #16a34a; font-size: 1.1rem;">${remaining} days</span>
+                </div>
+            `;
+            grid.appendChild(card);
+        }
+    }
+
+    // Render History Log Table
+    function renderHistory() {
+        const tbody = document.getElementById('historyTableBody');
+        tbody.innerHTML = '';
+
+        if (ptoLogs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b;">No PTO logged yet.</td></tr>`;
+            return;
+        }
+
+        // Sort logs: newest first
+        const sortedLogs = [...ptoLogs].reverse();
+
+        sortedLogs.forEach((log) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${log.name}</strong></td>
+                <td>${log.date}</td>
+                <td>${log.days} day(s)</td>
+                <td><button class="delete-btn" onclick="deleteLog('${log.id}')">Delete</button></td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Save state helper
+    function saveState() {
+        localStorage.setItem('optimo_teamData', JSON.stringify(teamData));
+        localStorage.setItem('optimo_ptoLogs', JSON.stringify(ptoLogs));
+    }
+
+    // Handle form submissions
+    document.getElementById('ptoForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('memberSelect').value;
+        const date = document.getElementById('ptoDate').value;
+        const days = parseFloat(document.getElementById('ptoDays').value);
+
+        if (!name || !date || isNaN(days)) return;
+
+        // Add to history log
+        const newLog = {
+            id: Date.now().toString(),
+            name: name,
+            date: date,
+            days: days
+        };
+
+        ptoLogs.push(newLog);
+
+        // Update total counters
+        if (teamData[name]) {
+            teamData[name].used += days;
+        }
+
+        saveState();
+        renderDashboard();
+        renderHistory();
+        
+        // Reset form details except team selection
+        document.getElementById('ptoDate').value = '';
+        document.getElementById('ptoDays').value = 1;
+    });
+
+    // Delete Log entry
+    window.deleteLog = function(id) {
+        const logIndex = ptoLogs.findIndex(log => log.id === id);
+        if (logIndex > -1) {
+            const log = ptoLogs[logIndex];
+            
+            // Deduct from used days tracker
+            if (teamData[log.name]) {
+                teamData[log.name].used = Math.max(0, teamData[log.name].used - log.days);
+            }
+            
+            // Remove record
+            ptoLogs.splice(logIndex, 1);
+            
+            saveState();
+            renderDashboard();
+            renderHistory();
+        }
+    };
+
+    // Initial Page Draw
+    renderDashboard();
+    renderHistory();
+</script>
+</body>
+</html>
