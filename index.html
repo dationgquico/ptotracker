@@ -3,80 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimo PH — Leave Tracker</title>
+    <title>Optimo PH — Leave & Availability Tracker</title>
+    <!-- Premium Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-dark: #0f111a; --bg-card: #161925; --accent-primary: #6366f1;
-            --accent-glow: rgba(99, 102, 241, 0.15); --text-main: #f8fafc;
-            --text-muted: #94a3b8; --border: rgba(255, 255, 255, 0.06); --success: #10b981;
+            --bg-dark: #0f111a;
+            --bg-card: #161925;
+            --accent-primary: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.15);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.06);
+            --success: #10b981;
         }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 40px 20px; min-height: 100vh; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
         .container { max-width: 1200px; margin: 0 auto; }
+        header { margin-bottom: 50px; }
+        h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.5rem; font-weight: 700; margin: 0 0 10px 0; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        header p { color: var(--text-muted); margin: 0; font-size: 1.05rem; }
+
         .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 30px; }
         @media (min-width: 900px) { .dashboard-grid { grid-template-columns: 380px 1fr; } }
-        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin-bottom: 30px; }
+
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); backdrop-filter: blur(10px); margin-bottom: 30px; }
         h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 700; margin: 0 0 25px 0; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Member Map Styles */
-        .member-row { display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid var(--border); }
-        .avatar { width: 45px; height: 45px; border-radius: 12px; background: #2d3748; }
-        .status-badge { padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; background: #064e3b; color: #10b981; margin-left: auto; }
-        
-        /* Reuse existing styles for credits/timeline */
-        .credit-row, .schedule-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; }
+
+        /* Status Map Specific Styles */
+        .status-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .avatar { width: 36px; height: 36px; border-radius: 8px; background: #2d3748; }
+        .status-badge { margin-left: auto; font-size: 0.7rem; font-weight: 700; color: var(--success); background: rgba(16, 185, 129, 0.1); padding: 4px 8px; border-radius: 6px; }
+
+        .credit-list { display: flex; flex-direction: column; gap: 16px; }
+        .credit-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 14px; }
+        .credit-name { font-weight: 600; }
         .credit-num { font-weight: 700; color: var(--success); }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; }
+        select, input { width: 100%; padding: 14px; background-color: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: 12px; color: var(--text-main); box-sizing: border-box; }
+        button { width: 100%; background-color: var(--accent-primary); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+        
+        .schedule-list { display: flex; flex-direction: column; gap: 14px; }
+        .schedule-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.01); padding: 18px; border-radius: 16px; border: 1px solid var(--border); border-left: 4px solid var(--accent-primary); }
+        .leave-date { color: var(--text-muted); background: rgba(255,255,255,0.04); padding: 6px 12px; border-radius: 8px; }
+        .loading { text-align: center; color: var(--text-muted); padding: 80px 0; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Optimo PH // Leave Tracker</h1>
-    
-    <div class="dashboard-grid">
-        <!-- LEFT COLUMN -->
-        <div>
+    <header>
+        <h1>Optimo PH // Leave & Availability Tracker</h1>
+        <p>Dynamic operational sync instance.</p>
+    </header>
+
+    <div id="loadingMessage" class="loading">CONNECTING TO OPERATIONAL CLOUD INSTANCE...</div>
+
+    <div id="mainContent" class="dashboard-grid" style="display: none;">
+        
+        <div class="sidebar-col">
+            <!-- DAILY STATUS MAP -->
+            <div class="card">
+                <h2>Daily Status Map</h2>
+                <input type="date" id="statusDate" onchange="renderStatusMap()" style="margin-bottom:15px; cursor:pointer;">
+                <div id="statusMapContainer"></div>
+            </div>
+
             <div class="card">
                 <h2>Remaining Balances</h2>
-                <div id="creditsContainer"></div>
+                <div id="creditsContainer" class="credit-list"></div>
+            </div>
+
+            <div class="card">
+                <h2>File Leave Request</h2>
+                <form id="ptoForm">
+                    <div class="form-group">
+                        <label>Teammate</label>
+                        <select id="memberSelect" required>
+                            <option value="Alex">Alex</option><option value="Darla">Darla</option>
+                            <option value="AJ">AJ</option><option value="Jess">Jess</option><option value="Chen">Chen</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Target Date</label>
+                        <input type="date" id="ptoDate" required>
+                    </div>
+                    <button type="submit" id="submitBtn">Submit Request</button>
+                </form>
             </div>
         </div>
 
-        <!-- RIGHT COLUMN -->
-        <div>
+        <div class="main-col">
             <div class="card">
-                <h2>DAILY STATUS MAP</h2>
-                <input type="date" id="datePicker" onchange="renderStatusMap()" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:10px; color:white; margin-bottom:20px;">
-                <div id="statusMap"></div>
+                <h2><span>Out of Office Timeline</span>
+                    <select id="monthFilter" class="month-select" onchange="renderSchedule()"></select>
+                </h2>
+                <div id="scheduleContainer" class="schedule-list"></div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const teamMembers = ["Alex", "Darla", "AJ", "Jess", "Chen"];
-    
-    // Aesthetic pixel-art avatars as seen in image_c33440.png
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzi87JjFK-f3frwS4684DiSu3ZOGBawXhPX8PsLljNrDAFoqYe6t7_VT7gjuxEPZFwd/exec';
+    let teamData = {}, ptoLogs = [];
+    const members = ["Alex", "Darla", "AJ", "Jess", "Chen"];
+
     function getAvatar(name) {
         const gender = name === 'AJ' ? 'male' : 'female';
         return `https://api.dicebear.com/9.x/pixel-art/svg?seed=${name}&gender=${gender}`;
     }
 
     function renderStatusMap() {
-        const container = document.getElementById('statusMap');
-        container.innerHTML = teamMembers.map(name => `
-            <div class="member-row">
+        const container = document.getElementById('statusMapContainer');
+        container.innerHTML = members.map(name => `
+            <div class="status-row">
                 <img class="avatar" src="${getAvatar(name)}" alt="${name}">
-                <span style="font-weight:600;">${name}</span>
+                <span style="font-weight:500;">${name}</span>
                 <span class="status-badge">PRESENT</span>
             </div>`).join('');
     }
 
-    document.getElementById('datePicker').valueAsDate = new Date();
-    renderStatusMap();
+    async function fetchData() {
+        try {
+            const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getData' }) });
+            const result = await response.json();
+            if (result.status === 'success') {
+                processSheetData(result.team, result.logs);
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'grid';
+                renderCredits(); renderSchedule(); renderStatusMap();
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    function processSheetData(teamRows, logRows) {
+        teamData = {}; teamRows.forEach(r => teamData[r[0]] = { total: parseFloat(r[1]) || 0, used: 0 });
+        ptoLogs = logRows.map(r => {
+            if(teamData[r[1]]) teamData[r[1]].used += parseFloat(r[3]) || 0;
+            return { name: r[1], date: new Date(r[2]), days: r[3] };
+        });
+    }
+
+    function renderCredits() {
+        const c = document.getElementById('creditsContainer');
+        c.innerHTML = Object.entries(teamData).map(([name, s]) => `
+            <div class="credit-row"><span class="credit-name">${name}</span><span class="credit-num">${s.total - s.used} remaining</span></div>
+        `).join('');
+    }
+
+    function renderSchedule() {
+        const container = document.getElementById('scheduleContainer');
+        const month = parseInt(document.getElementById('monthFilter').value);
+        const filtered = ptoLogs.filter(l => l.date.getMonth() === month);
+        container.innerHTML = filtered.length ? filtered.map(l => `
+            <div class="schedule-item"><div class="schedule-member">${l.name}</div><div class="leave-date">${l.date.toLocaleDateString()}</div></div>
+        `).join('') : '<div style="text-align:center; padding:20px;">No leave scheduled.</div>';
+    }
+
+    document.getElementById('statusDate').valueAsDate = new Date();
+    document.getElementById('ptoForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        alert('Transmission sent.');
+        fetchData();
+    });
+
+    // Initialize
+    const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const select = document.getElementById('monthFilter');
+    m.forEach((name, i) => select.add(new Option(name, i)));
+    select.selectedIndex = new Date().getMonth();
+    fetchData();
 </script>
 </body>
 </html>
