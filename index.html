@@ -2,90 +2,103 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Optimo PH // Leave Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimo PH // Agency Operations</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --bg-dark: #0f111a; --bg-card: #161925; --text-main: #f8fafc; 
-            --accent-blue: #3b82f6; --status-present: #10b981; 
-            --status-leave: #f43f5e; --status-holiday: #f59e0b; 
+        :root {
+            --bg-dark: #09090b;
+            --bg-card: #18181b;
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --border: #27272a;
+            /* Status Colors */
+            --status-present: #22c55e;
+            --status-leave: #ef4444;
+            --status-holiday: #f59e0b;
         }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); color: var(--text-main); padding: 40px 20px; }
-        .container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 350px 1fr; gap: 30px; }
-        .card { background: var(--bg-card); border-radius: 20px; padding: 25px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px; }
-        h2 { font-family: 'Space Grotesk'; font-size: 1.1rem; color: var(--accent-blue); margin-top: 0; }
-        .member { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #2d3748; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-        button { background: var(--accent-blue); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: 600; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; padding: 30px; }
+        
+        /* Teammate Row */
+        .member { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid var(--border); }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; background: #3f3f46; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        
+        /* Status Badge */
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        
+        h1 { font-family: 'Space Grotesk'; font-size: 2rem; margin-bottom: 30px; }
     </style>
 </head>
 <body>
-<div class="container">
-    <!-- LEFT SIDE: Balances & Request Form -->
-    <div>
-        <div class="card">
-            <h2>TEAM BALANCES</h2>
-            <div id="creditsContainer"></div>
-        </div>
-        <div class="card">
-            <h2>FILE REQUEST</h2>
-            <form id="ptoForm">
-                <select id="memberSelect" style="width:100%; padding:10px; background:#0f111a; color:white; border:none; border-radius:8px; margin-bottom:10px;">
-                    <option value="Alex">Alex</option><option value="Darla">Darla</option>
-                    <option value="AJ">AJ</option><option value="Jess">Jess</option><option value="Chen">Chen</option>
-                </select>
-                <input type="date" id="ptoDate" style="width:100%; padding:10px; background:#0f111a; color:white; border:none; border-radius:8px; margin-bottom:10px;">
-                <button type="submit">SUBMIT REQUEST</button>
-            </form>
-        </div>
-    </div>
 
-    <!-- RIGHT SIDE: Timeline & Daily Map -->
-    <div>
+<div class="container">
+    <h1>Optimo PH // Live Operations</h1>
+    
+    <div class="grid">
+        <!-- Status Map -->
         <div class="card">
-            <h2>OUT OF OFFICE TIMELINE</h2>
-            <div id="timelineContainer"></div>
-        </div>
-        <div class="card">
-            <h2>DAILY STATUS MAP</h2>
-            <input type="date" id="datePicker" onchange="renderStatusMap()" style="width:100%; background:#0f111a; color:white; border:none; padding:10px; border-radius:8px; margin-bottom:15px;">
+            <h2 style="margin-top:0;">Daily Status Map</h2>
+            <input type="date" id="datePicker" onchange="renderStatusMap()" style="background:#27272a; color:white; border:none; padding:10px; border-radius:8px; margin-bottom:20px;">
             <div id="statusMap"></div>
+        </div>
+
+        <!-- Request Form -->
+        <div class="card">
+            <h2>File Request</h2>
+            <form id="ptoForm">
+                <select id="memberSelect" style="width:100%; padding:10px; background:#27272a; color:white; border:none; border-radius:8px; margin-bottom:10px;">
+                    <option value="Alex">Alex</option>
+                    <option value="Darla">Darla</option>
+                    <option value="AJ">AJ</option>
+                </select>
+                <input type="date" id="ptoDate" style="width:100%; padding:10px; background:#27272a; color:white; border:none; border-radius:8px; margin-bottom:10px;">
+                <button type="submit" style="width:100%; padding:12px; background:#6366f1; border:none; border-radius:8px; color:white; cursor:pointer;">Submit</button>
+            </form>
         </div>
     </div>
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzi87JjFK-f3frwS4684DiSu3ZOGBawXhPX8PsLljNrDAFoqYe6t7_VT7gjuxEPZFwd/exec';
-    let teamData = ["Alex", "Darla", "AJ", "Jess", "Chen"];
+    const SCRIPT_URL = 'YOUR_URL_HERE';
+    let teamData = ["Alex", "Darla", "AJ", "Jess", "Chen"]; // Add names here
     let ptoLogs = [];
 
-    async function fetchData() {
-        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getData'}) });
-        const data = await res.json();
-        ptoLogs = data.logs || [];
-        renderStatusMap();
+    // Helper: Logic for Holidays and Status
+    function getStatus(name, date) {
+        const d = new Date(date);
+        // Holiday Block: Dec 23 to Jan 5
+        const isHoliday = (d.getMonth() === 11 && d.getDate() >= 23) || (d.getMonth() === 0 && d.getDate() <= 5);
+        if(isHoliday) return { text: 'Holiday', color: 'var(--status-holiday)' };
+        
+        // Check if in logs
+        const onLeave = ptoLogs.find(log => log.name === name && log.date === d.toDateString());
+        return onLeave ? { text: 'Absent', color: 'var(--status-leave)' } : { text: 'Present', color: 'var(--status-present)' };
     }
 
     function renderStatusMap() {
         const date = document.getElementById('datePicker').value || new Date().toISOString().split('T')[0];
         const map = document.getElementById('statusMap');
-        map.innerHTML = teamData.map(name => {
-            const d = new Date(date);
-            const isHoliday = (d.getMonth() === 11 && d.getDate() >= 23) || (d.getMonth() === 0 && d.getDate() <= 5);
-            const status = isHoliday ? {text:'Holiday', color:'var(--status-holiday)'} : 
-                           (ptoLogs.find(l => l.name === name && l.date === d.toDateString()) ? {text:'Absent', color:'var(--status-leave)'} : {text:'Present', color:'var(--status-present)'});
-            return `
-                <div class="member">
-                    <div class="avatar">👤</div>
-                    <div style="flex-grow:1;">${name}</div>
-                    <span class="badge" style="background:${status.color}33; color:${status.color}">${status.text}</span>
-                </div>`;
-        }).join('');
+        map.innerHTML = '';
+        
+        teamData.forEach(name => {
+            const status = getStatus(name, date);
+            const row = document.createElement('div');
+            row.className = 'member';
+            row.innerHTML = `
+                <div class="avatar">👤</div>
+                <div style="flex-grow:1; font-weight:600;">${name}</div>
+                <span class="badge" style="background:${status.color}33; color:${status.color}">${status.text}</span>
+            `;
+            map.appendChild(row);
+        });
     }
 
+    // Initialize
     document.getElementById('datePicker').valueAsDate = new Date();
-    fetchData();
+    renderStatusMap();
 </script>
 </body>
 </html>
