@@ -3,31 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <title>Optimo PH // Agency Operations</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-dark: #09090b; --bg-card: #18181b; --text-main: #ffffff; --text-muted: #a1a1aa; --status-present: #22c55e; --status-leave: #ef4444; --status-holiday: #f59e0b; }
+        :root { --bg-dark: #09090b; --bg-card: #18181b; --text-main: #ffffff; --text-muted: #a1a1aa; --accent-primary: #6366f1; --status-present: #22c55e; --status-leave: #ef4444; --status-holiday: #f59e0b; --border: #27272a; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); color: var(--text-main); padding: 40px 20px; }
-        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
-        .card { background: var(--bg-card); border-radius: 24px; padding: 30px; border: 1px solid #27272a; }
-        .member { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid #27272a; }
-        .avatar { width: 45px; height: 45px; border-radius: 50%; background: #3f3f46; display: flex; align-items: center; justify-content: center; }
-        .badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-        .timeline-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #27272a; }
+        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 380px; gap: 30px; }
+        .card { background: var(--bg-card); border-radius: 20px; padding: 30px; border: 1px solid var(--border); margin-bottom: 30px; }
+        h2 { font-family: 'Space Grotesk'; font-size: 1.25rem; margin-top: 0; display: flex; justify-content: space-between; }
+        .timeline-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid var(--border); }
+        .member { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .avatar { width: 35px; height: 35px; border-radius: 50%; background: #3f3f46; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+        .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- LEFT SIDE: Timeline View -->
-    <div class="card">
-        <h2>Out of Office Timeline</h2>
-        <div id="timelineContainer"></div>
+    <!-- LEFT: Main Timeline & Form -->
+    <div class="main-col">
+        <div class="card">
+            <h2>Out of Office Timeline</h2>
+            <div id="timelineContainer"></div>
+        </div>
     </div>
 
-    <!-- RIGHT SIDE: Daily Status Map -->
-    <div class="card">
-        <h2>Daily Status Map</h2>
-        <input type="date" id="datePicker" onchange="renderStatusMap()" style="background:#27272a; color:white; border:none; padding:10px; border-radius:8px; margin-bottom:20px; width:100%;">
-        <div id="statusMap"></div>
+    <!-- RIGHT: Sidebar (Balances & Map) -->
+    <div class="sidebar-col">
+        <div class="card">
+            <h2>Daily Status Map</h2>
+            <input type="date" id="datePicker" onchange="renderStatusMap()" style="width:100%; background:#27272a; color:white; border:none; padding:10px; border-radius:8px; margin-bottom:15px;">
+            <div id="statusMap"></div>
+        </div>
     </div>
 </div>
 
@@ -45,8 +50,7 @@
     }
 
     function renderTimeline() {
-        const container = document.getElementById('timelineContainer');
-        container.innerHTML = ptoLogs.map(log => `
+        document.getElementById('timelineContainer').innerHTML = ptoLogs.map(log => `
             <div class="timeline-item">
                 <span style="font-weight:600;">${log.name}</span>
                 <span style="color:var(--text-muted);">${log.date}</span>
@@ -62,11 +66,10 @@
             const isHoliday = (d.getMonth() === 11 && d.getDate() >= 23) || (d.getMonth() === 0 && d.getDate() <= 5);
             const status = isHoliday ? {text:'Holiday', color:'var(--status-holiday)'} : 
                            (ptoLogs.find(l => l.name === name && l.date === d.toDateString()) ? {text:'Absent', color:'var(--status-leave)'} : {text:'Present', color:'var(--status-present)'});
-            
             return `
                 <div class="member">
                     <div class="avatar">👤</div>
-                    <div style="flex-grow:1; font-weight:600;">${name}</div>
+                    <div style="flex-grow:1; font-size:0.9rem;">${name}</div>
                     <span class="badge" style="background:${status.color}33; color:${status.color}">${status.text}</span>
                 </div>`;
         }).join('');
