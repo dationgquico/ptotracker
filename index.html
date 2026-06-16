@@ -2,96 +2,81 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Optimo PH // Leave Tracker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimo PH — Leave Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --bg-dark: #0f111a; --bg-card: #161925; --accent-primary: #6366f1; --text-main: #f8fafc; --text-muted: #94a3b8; --success: #10b981; --border: rgba(255, 255, 255, 0.06); }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); color: var(--text-main); padding: 40px 20px; }
-        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 380px 1fr; gap: 30px; }
-        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 30px; margin-bottom: 30px; }
-        h2 { font-family: 'Space Grotesk'; font-size: 1.25rem; color: var(--text-main); margin-bottom: 25px; }
+        :root {
+            --bg-dark: #0f111a; --bg-card: #161925; --accent-primary: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.15); --text-main: #f8fafc;
+            --text-muted: #94a3b8; --border: rgba(255, 255, 255, 0.06); --success: #10b981;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 40px 20px; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 30px; }
+        @media (min-width: 900px) { .dashboard-grid { grid-template-columns: 380px 1fr; } }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); margin-bottom: 30px; }
+        h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 700; margin: 0 0 25px 0; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Balances & Schedule Rows */
-        .credit-row, .schedule-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; }
-        .credit-num { font-weight: 700; color: var(--success); }
-        
-        /* Status Map Specifics */
+        /* Member Map Styles */
         .member-row { display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid var(--border); }
         .avatar { width: 45px; height: 45px; border-radius: 12px; background: #2d3748; }
         .status-badge { padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; background: #064e3b; color: #10b981; margin-left: auto; }
+        
+        /* Reuse existing styles for credits/timeline */
+        .credit-row, .schedule-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; }
+        .credit-num { font-weight: 700; color: var(--success); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- LEFT COLUMN -->
-    <div>
-        <div class="card">
-            <h2>Remaining Balances</h2>
-            <div id="creditsContainer"></div>
+    <h1>Optimo PH // Leave Tracker</h1>
+    
+    <div class="dashboard-grid">
+        <!-- LEFT COLUMN -->
+        <div>
+            <div class="card">
+                <h2>Remaining Balances</h2>
+                <div id="creditsContainer"></div>
+            </div>
         </div>
-        <div class="card">
-            <h2>File Leave Request</h2>
-            <form id="ptoForm">
-                <select id="memberSelect" style="width:100%; padding:14px; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:12px; color:white; margin-bottom:15px;">
-                    <option value="Alex">Alex</option><option value="Darla">Darla</option><option value="AJ">AJ</option><option value="Jess">Jess</option><option value="Chen">Chen</option>
-                </select>
-                <input type="date" id="ptoDate" style="width:100%; padding:14px; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:12px; color:white; margin-bottom:15px;">
-                <button type="submit" style="width:100%; padding:14px; background:var(--accent-primary); border:none; border-radius:12px; color:white; font-weight:700; cursor:pointer;">SUBMIT REQUEST</button>
-            </form>
-        </div>
-    </div>
 
-    <!-- RIGHT COLUMN -->
-    <div>
-        <div class="card">
-            <h2>Out of Office Timeline</h2>
-            <div id="timelineContainer"></div>
-        </div>
-        <div class="card">
-            <h2>DAILY STATUS MAP</h2>
-            <input type="date" id="datePicker" onchange="renderStatusMap()" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:10px; color:white; margin-bottom:20px;">
-            <div id="statusMap"></div>
+        <!-- RIGHT COLUMN -->
+        <div>
+            <div class="card">
+                <h2>DAILY STATUS MAP</h2>
+                <input type="date" id="datePicker" onchange="renderStatusMap()" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:10px; color:white; margin-bottom:20px;">
+                <div id="statusMap"></div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzi87JjFK-f3frwS4684DiSu3ZOGBawXhPX8PsLljNrDAFoqYe6t7_VT7gjuxEPZFwd/exec';
+    const teamMembers = ["Alex", "Darla", "AJ", "Jess", "Chen"];
     
-    // Consistent style as seen in image_c33440.png
+    // Aesthetic pixel-art avatars as seen in image_c33440.png
     function getAvatar(name) {
         const gender = name === 'AJ' ? 'male' : 'female';
         return `https://api.dicebear.com/9.x/pixel-art/svg?seed=${name}&gender=${gender}`;
     }
 
-    async function fetchData() {
-        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getData'}) });
-        const data = await res.json();
-        
-        // Render Balances
-        document.getElementById('creditsContainer').innerHTML = data.team.slice(1).map(row => 
-            `<div class="credit-row"><span>${row[0]}</span><span>Used: 0 | <span class="credit-num">${row[1]} rem</span></span></div>`).join('');
-
-        // Render Timeline
-        document.getElementById('timelineContainer').innerHTML = data.logs.map(log => 
-            `<div class="schedule-item"><span>${log.name}</span><span style="color:var(--text-muted);">${log.date}</span></div>`).join('');
-
-        renderStatusMap(data.logs);
-    }
-
-    function renderStatusMap(logs = []) {
-        const date = document.getElementById('datePicker').value || new Date().toISOString().split('T')[0];
-        document.getElementById('statusMap').innerHTML = ["Alex", "Darla", "AJ", "Jess", "Chen"].map(name => `
+    function renderStatusMap() {
+        const container = document.getElementById('statusMap');
+        container.innerHTML = teamMembers.map(name => `
             <div class="member-row">
-                <img class="avatar" src="${getAvatar(name)}">
+                <img class="avatar" src="${getAvatar(name)}" alt="${name}">
                 <span style="font-weight:600;">${name}</span>
                 <span class="status-badge">PRESENT</span>
             </div>`).join('');
     }
 
     document.getElementById('datePicker').valueAsDate = new Date();
-    fetchData();
+    renderStatusMap();
 </script>
 </body>
 </html>
