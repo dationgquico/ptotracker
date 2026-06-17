@@ -2,88 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimo PH // Leave & Availability Tracker</title>
+    <title>Optimo PH // Agency Operations</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-dark: #0f111a; --bg-card: #161925; --accent-primary: #6366f1; --text-main: #f8fafc; --text-muted: #94a3b8; --border: rgba(255, 255, 255, 0.06); }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 40px 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .dashboard-grid { display: grid; grid-template-columns: 380px 1fr; gap: 30px; }
-        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 30px; margin-bottom: 30px; }
-        h2 { font-family: 'Space Grotesk'; font-size: 1.25rem; margin-bottom: 25px; }
-        .status-row { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid var(--border); }
-        .avatar { width: 45px; height: 45px; border-radius: 12px; }
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-left: auto; }
-        .credit-row { display: flex; justify-content: space-between; padding: 14px; background: rgba(255, 255, 255, 0.02); border-radius: 14px; margin-bottom: 10px; }
+        :root { --bg-dark: #0f111a; --bg-card: #161925; --accent-primary: #6366f1; --text-main: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.06); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); color: var(--text-main); padding: 40px 20px; }
+        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 380px 1fr; gap: 30px; }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        h2 { font-family: 'Space Grotesk'; font-size: 1.1rem; color: var(--accent-primary); margin: 0 0 20px 0; display: flex; justify-content: space-between; }
+        .member-row { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .avatar { width: 45px; height: 45px; border-radius: 12px; background: #2d3748; }
+        .badge { padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; background: rgba(99, 102, 241, 0.1); color: var(--accent-primary); }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h1>Optimo PH // Leave & Availability Tracker</h1>
-    <div class="dashboard-grid">
-        <div class="sidebar">
-            <div class="card">
-                <h2>Daily Status Map</h2>
-                <input type="date" id="datePicker" onchange="updateUI()" style="width:100%; padding:10px; background:#000; border:1px solid var(--border); border-radius:10px; color:white; margin-bottom:20px;">
-                <div id="statusMapContainer"></div>
-            </div>
-            <div class="card">
-                <h2>Remaining Balances</h2>
-                <div id="creditsContainer"></div>
-            </div>
+    <!-- LEFT: Balances & Request Form -->
+    <div>
+        <div class="card">
+            <h2>TEAM BALANCES</h2>
+            <div id="creditsContainer"></div>
         </div>
-        <div class="main-col">
-            <div class="card">
-                <h2>Out of Office Timeline</h2>
-                <div id="scheduleContainer"></div>
-            </div>
+        <div class="card">
+            <h2>FILE REQUEST</h2>
+            <form id="ptoForm">
+                <select id="memberSelect" style="width:100%; padding:12px; background:var(--bg-dark); color:white; border:1px solid var(--border); border-radius:10px; margin-bottom:15px;">
+                    <option>Alex</option><option>Darla</option><option>AJ</option><option>Jess</option><option>Chen</option>
+                </select>
+                <input type="date" id="ptoDate" style="width:100%; padding:12px; background:var(--bg-dark); color:white; border:1px solid var(--border); border-radius:10px; margin-bottom:15px;">
+                <button type="submit" style="width:100%; padding:12px; background:var(--accent-primary); color:white; border:none; border-radius:10px; cursor:pointer;">SUBMIT</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- RIGHT: Timeline & Status Map -->
+    <div>
+        <div class="card">
+            <h2>OUT OF OFFICE TIMELINE</h2>
+            <div id="timelineContainer"></div>
+        </div>
+        <div class="card">
+            <h2>DAILY STATUS MAP</h2>
+            <input type="date" id="datePicker" onchange="renderStatusMap()" style="width:100%; padding:10px; background:var(--bg-dark); color:white; border:1px solid var(--border); border-radius:10px; margin-bottom:15px;">
+            <div id="statusMap"></div>
         </div>
     </div>
 </div>
 
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzi87JjFK-f3frwS4684DiSu3ZOGBawXhPX8PsLljNrDAFoqYe6t7_VT7gjuxEPZFwd/exec';
-    let teamData = [], ptoLogs = [];
-
+    const teamMembers = ["Alex", "Darla", "AJ", "Jess", "Chen"];
+    
     async function fetchData() {
-        try {
-            const response = await fetch(SCRIPT_URL, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ action: 'getData' }) 
-            });
-            const result = await response.json();
-            teamData = result.team;
-            ptoLogs = result.logs;
-            updateUI();
-        } catch (e) {
-            console.error("Fetch failed:", e);
-        }
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getData'}) });
+        const data = await res.json();
+        renderStatusMap(data.logs);
     }
 
-    function updateUI() {
+    function renderStatusMap(logs = []) {
         const date = document.getElementById('datePicker').value || new Date().toISOString().split('T')[0];
-        const members = ["Alex", "Darla", "AJ", "Jess", "Chen"];
-        
-        // Render Status Map
-        document.getElementById('statusMapContainer').innerHTML = members.map(name => {
-            const isAbsent = ptoLogs.some(log => log.name === name && log.date.includes(date));
+        const container = document.getElementById('statusMap');
+        container.innerHTML = teamMembers.map(name => {
+            const isAbsent = logs.some(l => l.name === name && l.date === date);
             return `
-            <div class="status-row">
-                <img class="avatar" src="https://api.dicebear.com/9.x/notionists/svg?seed=${name}">
-                <div style="flex-grow:1;">${name}</div>
-                <span class="badge" style="background:${isAbsent ? '#ef444433' : '#10b98133'}; color:${isAbsent ? '#ef4444' : '#10b981'}">
-                    ${isAbsent ? 'ABSENT' : 'PRESENT'}
-                </span>
-            </div>`;
+                <div class="member-row">
+                    <img class="avatar" src="https://api.dicebear.com/9.x/notionists/svg?seed=${name}">
+                    <div style="flex-grow:1;">${name}</div>
+                    <span class="badge" style="background:${isAbsent ? '#ef444433' : '#10b98133'}; color:${isAbsent ? '#ef4444' : '#10b981'}">
+                        ${isAbsent ? 'ABSENT' : 'PRESENT'}
+                    </span>
+                </div>`;
         }).join('');
-
-        // Render Credits
-        document.getElementById('creditsContainer').innerHTML = teamData.slice(1).map(row => `
-            <div class="credit-row"><span>${row[0]}</span><span style="font-weight:700; color:#10b981;">${row[1]} Rem</span></div>
-        `).join('');
     }
 
     document.getElementById('datePicker').valueAsDate = new Date();
